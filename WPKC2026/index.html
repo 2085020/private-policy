@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="World Penalty Kick Cup 2026 – The ultimate mobile penalty shootout game. Available on Android." />
+  <title>World Penalty Kick Cup 2026</title>
+  <style>
+    :root {
+      --primary:  #0d0d1a;
+      --surface:  #14142b;
+      --card:     #1a1a32;
+      --accent:   #e8b84b;
+      --accent2:  #f04f4f;
+      --green:    #27ae60;
+      --text:     #e8e8f0;
+      --muted:    #8888a8;
+      --border:   #2a2a46;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--primary);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    /* ─── HERO ─────────────────────────────────────────── */
+    .hero {
+      position: relative;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 40px 24px 60px;
+      background:
+        radial-gradient(ellipse 80% 60% at 50% 0%, rgba(232,184,75,0.18) 0%, transparent 70%),
+        radial-gradient(ellipse 60% 40% at 80% 80%, rgba(240,79,79,0.12) 0%, transparent 60%),
+        var(--primary);
+      overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image:
+        repeating-linear-gradient(0deg, transparent, transparent 59px, rgba(255,255,255,0.03) 60px),
+        repeating-linear-gradient(90deg, transparent, transparent 59px, rgba(255,255,255,0.03) 60px);
+      pointer-events: none;
+    }
+
+    .badge {
+      display: inline-block;
+      background: rgba(232,184,75,0.15);
+      border: 1px solid rgba(232,184,75,0.4);
+      color: var(--accent);
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      padding: 6px 16px;
+      border-radius: 20px;
+      margin-bottom: 28px;
+    }
+
+    .ball {
+      font-size: 5rem;
+      line-height: 1;
+      margin-bottom: 16px;
+      animation: spin 8s linear infinite;
+      display: inline-block;
+    }
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to   { transform: rotate(360deg); }
+    }
+
+    .hero h1 {
+      font-size: clamp(2rem, 6vw, 3.6rem);
+      font-weight: 900;
+      letter-spacing: -1px;
+      line-height: 1.1;
+      margin-bottom: 8px;
+    }
+    .hero h1 span.gold { color: var(--accent); }
+    .hero h1 span.red  { color: var(--accent2); }
+
+    .hero .year {
+      display: block;
+      font-size: clamp(3rem, 10vw, 6rem);
+      font-weight: 900;
+      letter-spacing: -4px;
+      color: transparent;
+      -webkit-text-stroke: 2px rgba(232,184,75,0.5);
+      line-height: 1;
+      margin-bottom: 24px;
+    }
+
+    .hero p.tagline {
+      font-size: 1.1rem;
+      color: var(--muted);
+      max-width: 480px;
+      margin: 0 auto 40px;
+    }
+
+    .cta-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      justify-content: center;
+      margin-bottom: 56px;
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 14px 28px;
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: 1rem;
+      text-decoration: none;
+      transition: transform 0.15s, box-shadow 0.15s;
+      cursor: pointer;
+    }
+    .btn:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.4); }
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent), #d4a030);
+      color: #0d0d1a;
+    }
+    .btn-secondary {
+      background: transparent;
+      border: 2px solid var(--border);
+      color: var(--text);
+    }
+    .btn-secondary:hover { border-color: var(--accent); color: var(--accent); }
+
+    /* play badge Google Play */
+    .play-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      background: #1e1e3a;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px 20px;
+      text-decoration: none;
+      color: var(--text);
+      transition: border-color 0.2s, transform 0.15s;
+    }
+    .play-badge:hover { border-color: var(--accent); transform: translateY(-2px); }
+    .play-badge .icon { font-size: 2rem; }
+    .play-badge .txt small { display: block; font-size: 0.65rem; letter-spacing: 1px; color: var(--muted); text-transform: uppercase; }
+    .play-badge .txt strong { font-size: 1.05rem; }
+
+    /* scroll arrow */
+    .scroll-hint {
+      position: absolute;
+      bottom: 28px;
+      left: 50%;
+      transform: translateX(-50%);
+      color: var(--muted);
+      font-size: 1.5rem;
+      animation: bounce 2s infinite;
+    }
+    @keyframes bounce {
+      0%,100% { transform: translateX(-50%) translateY(0); }
+      50%      { transform: translateX(-50%) translateY(8px); }
+    }
+
+    /* ─── SECTIONS ──────────────────────────────────────── */
+    section {
+      padding: 80px 24px;
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+    .section-label {
+      font-size: 0.7rem;
+      letter-spacing: 3px;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 12px;
+    }
+    section h2 {
+      font-size: clamp(1.6rem, 4vw, 2.4rem);
+      font-weight: 800;
+      margin-bottom: 40px;
+    }
+    section h2 em { color: var(--accent); font-style: normal; }
+
+    /* ─── FEATURES GRID ─────────────────────────────────── */
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 20px;
+    }
+    .feature-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 28px 24px;
+      transition: border-color 0.2s, transform 0.2s;
+    }
+    .feature-card:hover { border-color: var(--accent); transform: translateY(-4px); }
+    .feature-card .icon { font-size: 2.2rem; margin-bottom: 14px; display: block; }
+    .feature-card h3 { font-size: 1rem; font-weight: 700; margin-bottom: 8px; }
+    .feature-card p { font-size: 0.88rem; color: var(--muted); }
+
+    /* ─── STATS ─────────────────────────────────────────── */
+    .stats-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 2px;
+      border-radius: 16px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+    .stat {
+      flex: 1 1 160px;
+      background: var(--card);
+      padding: 32px 20px;
+      text-align: center;
+    }
+    .stat .num {
+      font-size: 2.4rem;
+      font-weight: 900;
+      color: var(--accent);
+      line-height: 1;
+      display: block;
+      margin-bottom: 6px;
+    }
+    .stat .lbl { font-size: 0.8rem; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
+
+    /* ─── DIVIDER ────────────────────────────────────────── */
+    .divider {
+      width: 100%;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--border), transparent);
+    }
+
+    /* ─── FOOTER ────────────────────────────────────────── */
+    footer {
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      padding: 40px 24px;
+      text-align: center;
+    }
+    footer .logo-text {
+      font-size: 1.1rem;
+      font-weight: 800;
+      color: var(--accent);
+      letter-spacing: 1px;
+      margin-bottom: 16px;
+    }
+    footer nav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px 24px;
+      justify-content: center;
+      margin-bottom: 20px;
+    }
+    footer nav a {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 0.88rem;
+      transition: color 0.15s;
+    }
+    footer nav a:hover { color: var(--accent); }
+    footer small { color: var(--muted); font-size: 0.78rem; }
+  </style>
+</head>
+<body>
+
+  <!-- ═══════════════ HERO ═══════════════ -->
+  <div class="hero">
+    <div class="badge">⚽ Android Game</div>
+    <span class="ball">⚽</span>
+    <h1>
+      <span class="gold">World Penalty</span><br>
+      <span class="red">Kick Cup</span>
+    </h1>
+    <span class="year">2026</span>
+    <p class="tagline">
+      Step up to the spot. Outsmart the keeper. Lift the trophy.<br>
+      The ultimate mobile penalty shootout experience.
+    </p>
+
+    <div class="cta-group">
+      <a class="play-badge" href="https://play.google.com/store/apps/details?id=com.forexsignals10pips.penalty2026" target="_blank" rel="noopener">
+        <span class="icon">▶</span>
+        <span class="txt">
+          <small>Get it on</small>
+          <strong>Google Play</strong>
+        </span>
+      </a>
+      <a class="btn btn-secondary" href="privacy-policy.html">🔒 Privacy Policy</a>
+    </div>
+
+    <div class="stats-row">
+      <div class="stat"><span class="num">32</span><span class="lbl">Nations</span></div>
+      <div class="stat"><span class="num">∞</span><span class="lbl">Matches</span></div>
+      <div class="stat"><span class="num">3</span><span class="lbl">Game Modes</span></div>
+      <div class="stat"><span class="num">🏆</span><span class="lbl">Tournament Mode</span></div>
+    </div>
+
+    <div class="scroll-hint">↓</div>
+  </div>
+
+  <!-- ═══════════════ FEATURES ═══════════════ -->
+  <section>
+    <p class="section-label">Gameplay</p>
+    <h2>Everything you need to<br><em>become champion</em></h2>
+    <div class="features-grid">
+      <div class="feature-card">
+        <span class="icon">🎯</span>
+        <h3>Drag &amp; Shoot</h3>
+        <p>Intuitive drag controls let you aim with precision — curve it top-corner or go low and hard.</p>
+      </div>
+      <div class="feature-card">
+        <span class="icon">🧤</span>
+        <h3>AI Goalkeeper</h3>
+        <p>An adaptive AI keeper reads your patterns and dives to stop your shots. No two saves are the same.</p>
+      </div>
+      <div class="feature-card">
+        <span class="icon">🏆</span>
+        <h3>Tournament Mode</h3>
+        <p>Play through knockout rounds with 32 national teams. One miss can end your World Cup dream.</p>
+      </div>
+      <div class="feature-card">
+        <span class="icon">🌍</span>
+        <h3>32 Nations</h3>
+        <p>Choose from all 32 World Cup 2026 nations. Represent your country and bring glory home.</p>
+      </div>
+      <div class="feature-card">
+        <span class="icon">🎵</span>
+        <h3>Atmosphere</h3>
+        <p>Stadium crowd sounds and menu music put you right in the middle of the World Cup atmosphere.</p>
+      </div>
+      <div class="feature-card">
+        <span class="icon">📱</span>
+        <h3>Play Anywhere</h3>
+        <p>Fully offline — no internet connection needed after install. Play on the go, anytime.</p>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- ═══════════════ ABOUT ═══════════════ -->
+  <section>
+    <p class="section-label">About</p>
+    <h2>Built for the<br><em>2026 World Cup</em></h2>
+    <p style="color:var(--muted); max-width:600px; font-size:1rem; line-height:1.8;">
+      World Penalty Kick Cup 2026 is a free-to-play mobile game built with HTML5 and Apache Capacitor,
+      designed to capture the intensity of a penalty shootout. Step up to the spot under the pressure
+      of the stadium lights and prove you have what it takes to be a World Cup hero.
+    </p>
+  </section>
+
+  <!-- ═══════════════ FOOTER ═══════════════ -->
+  <footer>
+    <div class="logo-text">⚽ World Penalty Kick Cup 2026</div>
+    <nav>
+      <a href="privacy-policy.html">Privacy Policy</a>
+      <a href="https://play.google.com/store/apps/details?id=com.forexsignals10pips.penalty2026" target="_blank" rel="noopener">Google Play</a>
+    </nav>
+    <small>&copy; 2026 World Penalty Kick Cup 2026. All rights reserved.</small>
+  </footer>
+
+</body>
+</html>
