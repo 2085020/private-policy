@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NumberDrop — Merge Numbers, Beat Your Score</title>
+  <meta name="description" content="Drop tiles, merge numbers, trigger chain reactions. NumberDrop is a free puzzle game for Android." />
+  <meta property="og:title" content="NumberDrop" />
+  <meta property="og:description" content="Drop tiles, merge numbers, trigger chain reactions. Free on Google Play." />
+  <meta property="og:image" content="screenshots/01-home-screen.png" />
+  <meta name="theme-color" content="#0a0a14" />
+  <style>
+    /* ── Reset & base ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #0a0a14;
+      --bg2:       #12121f;
+      --bg3:       #1a1a2e;
+      --cyan:      #00e5ff;
+      --cyan-dim:  #00b8cc;
+      --cyan-glow: rgba(0,229,255,.25);
+      --text:      #e8e8f0;
+      --text-dim:  #8888aa;
+      --border:    rgba(0,229,255,.18);
+      --radius:    14px;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      line-height: 1.6;
+    }
+
+    /* ── Nav ── */
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(10,10,20,.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: .75rem 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .nav-logo {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--cyan);
+      text-shadow: 0 0 12px var(--cyan);
+      text-decoration: none;
+      letter-spacing: .02em;
+    }
+
+    .nav-links { display: flex; gap: 1.5rem; }
+    .nav-links a {
+      color: var(--text-dim);
+      text-decoration: none;
+      font-size: .9rem;
+      transition: color .2s;
+    }
+    .nav-links a:hover { color: var(--cyan); }
+
+    /* ── Hero ── */
+    .hero {
+      text-align: center;
+      padding: 5rem 1.5rem 4rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse 70% 50% at 50% 0%, rgba(0,229,255,.08) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: .4rem;
+      background: rgba(0,229,255,.08);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: .3rem .9rem;
+      font-size: .78rem;
+      color: var(--cyan);
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      margin-bottom: 1.5rem;
+    }
+
+    .hero h1 {
+      font-size: clamp(3rem, 10vw, 6rem);
+      font-weight: 800;
+      color: var(--cyan);
+      text-shadow: 0 0 30px var(--cyan), 0 0 60px rgba(0,229,255,.4);
+      letter-spacing: -.02em;
+      line-height: 1.1;
+      margin-bottom: 1.2rem;
+    }
+
+    .hero p {
+      font-size: clamp(1rem, 3vw, 1.25rem);
+      color: var(--text-dim);
+      max-width: 520px;
+      margin: 0 auto 2.5rem;
+    }
+
+    .btn-play {
+      display: inline-flex;
+      align-items: center;
+      gap: .75rem;
+      background: var(--cyan);
+      color: #000;
+      font-weight: 700;
+      font-size: 1rem;
+      padding: .85rem 2rem;
+      border-radius: 999px;
+      text-decoration: none;
+      transition: transform .2s, box-shadow .2s;
+      box-shadow: 0 0 24px var(--cyan-glow), 0 4px 20px rgba(0,0,0,.4);
+    }
+
+    .btn-play:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 0 36px var(--cyan-glow), 0 8px 30px rgba(0,0,0,.5);
+    }
+
+    .btn-play svg { flex-shrink: 0; }
+
+    .hero-sub {
+      margin-top: 1.2rem;
+      font-size: .82rem;
+      color: var(--text-dim);
+    }
+
+    /* ── Screenshots ── */
+    .screenshots {
+      padding: 4rem 1.5rem;
+      text-align: center;
+    }
+
+    .section-title {
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: .5rem;
+    }
+
+    .section-sub {
+      color: var(--text-dim);
+      margin-bottom: 2.5rem;
+      font-size: .95rem;
+    }
+
+    .screenshot-grid {
+      display: flex;
+      gap: 1.25rem;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .screenshot-grid img {
+      width: 180px;
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      box-shadow: 0 0 20px rgba(0,229,255,.1), 0 8px 32px rgba(0,0,0,.5);
+      transition: transform .25s, box-shadow .25s;
+      cursor: pointer;
+    }
+
+    .screenshot-grid img:hover {
+      transform: scale(1.04) translateY(-4px);
+      box-shadow: 0 0 30px rgba(0,229,255,.2), 0 16px 48px rgba(0,0,0,.6);
+    }
+
+    /* ── Features ── */
+    .features {
+      padding: 4rem 1.5rem;
+      background: var(--bg2);
+    }
+
+    .features-inner {
+      max-width: 900px;
+      margin: 0 auto;
+      text-align: center;
+    }
+
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1.25rem;
+      margin-top: 2.5rem;
+    }
+
+    .feature-card {
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.5rem 1.25rem;
+      text-align: left;
+      transition: border-color .2s, box-shadow .2s;
+    }
+
+    .feature-card:hover {
+      border-color: var(--cyan-dim);
+      box-shadow: 0 0 16px var(--cyan-glow);
+    }
+
+    .feature-icon {
+      font-size: 1.8rem;
+      margin-bottom: .75rem;
+      display: block;
+    }
+
+    .feature-card h3 {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--cyan);
+      margin-bottom: .4rem;
+    }
+
+    .feature-card p {
+      font-size: .88rem;
+      color: var(--text-dim);
+      line-height: 1.55;
+    }
+
+    /* ── How to play ── */
+    .howto {
+      padding: 4rem 1.5rem;
+      max-width: 700px;
+      margin: 0 auto;
+      text-align: center;
+    }
+
+    .steps {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      margin-top: 2rem;
+      text-align: left;
+    }
+
+    .step {
+      display: flex;
+      align-items: flex-start;
+      gap: 1rem;
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.1rem 1.25rem;
+    }
+
+    .step-num {
+      flex-shrink: 0;
+      width: 32px;
+      height: 32px;
+      background: var(--cyan);
+      color: #000;
+      font-weight: 800;
+      font-size: .9rem;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .step-text h4 { font-size: .95rem; color: var(--text); margin-bottom: .2rem; }
+    .step-text p  { font-size: .85rem; color: var(--text-dim); }
+
+    /* ── CTA ── */
+    .cta {
+      padding: 5rem 1.5rem;
+      text-align: center;
+      background: var(--bg2);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .cta::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse 60% 60% at 50% 100%, rgba(0,229,255,.07) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .cta h2 {
+      font-size: clamp(1.8rem, 5vw, 2.8rem);
+      font-weight: 800;
+      color: var(--text);
+      margin-bottom: .75rem;
+    }
+
+    .cta p {
+      color: var(--text-dim);
+      margin-bottom: 2rem;
+      font-size: 1rem;
+      max-width: 400px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    /* ── Footer ── */
+    footer {
+      padding: 2rem 1.5rem;
+      text-align: center;
+      border-top: 1px solid var(--border);
+      font-size: .82rem;
+      color: var(--text-dim);
+      display: flex;
+      flex-direction: column;
+      gap: .5rem;
+      align-items: center;
+    }
+
+    footer a {
+      color: var(--cyan-dim);
+      text-decoration: none;
+    }
+
+    footer a:hover { text-decoration: underline; }
+
+    /* ── Lightbox ── */
+    .lightbox {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.88);
+      z-index: 200;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+    }
+
+    .lightbox.open { display: flex; }
+
+    .lightbox img {
+      max-height: 90vh;
+      max-width: 90vw;
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+    }
+
+    .lightbox-close {
+      position: absolute;
+      top: 1.5rem;
+      right: 1.5rem;
+      background: none;
+      border: none;
+      color: var(--text-dim);
+      font-size: 2rem;
+      cursor: pointer;
+      line-height: 1;
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 600px) {
+      .nav-links { display: none; }
+      .screenshot-grid img { width: 140px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Nav -->
+  <nav>
+    <a class="nav-logo" href="#">NumberDrop</a>
+    <div class="nav-links">
+      <a href="#features">Features</a>
+      <a href="#how-to-play">How to Play</a>
+      <a href="privacy-policy.html">Privacy</a>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <section class="hero">
+    <div class="hero-badge">
+      <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+        <circle cx="6" cy="6" r="5" stroke="#00e5ff" stroke-width="1.5"/>
+        <path d="M4 6l1.5 1.5L8 4" stroke="#00e5ff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      Free on Google Play
+    </div>
+    <h1>NumberDrop</h1>
+    <p>Drop tiles. Merge matching numbers. Trigger chain reactions. How high can you score?</p>
+    <a class="btn-play"
+       href="https://play.google.com/store/apps/details?id=com.forexsignals10pips.numberdrop"
+       target="_blank"
+       rel="noopener noreferrer">
+      <!-- Google Play icon -->
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="black" xmlns="http://www.w3.org/2000/svg">
+        <path d="M3.18 23.76c.3.17.64.24.98.21l11.25-11.25-3.06-3.06L3.18 23.76z"/>
+        <path d="M21.54 10.28l-2.88-1.65-3.25 3.25 3.25 3.25 2.9-1.66c.83-.47.83-1.72-.02-2.19z"/>
+        <path d="M2.2.24C1.83.44 1.58.84 1.58 1.34v21.32c0 .5.25.9.62 1.1l.14.07 11.95-11.95v-.18L2.34.17 2.2.24z"/>
+        <path d="M12.35 12.88l3.29-3.29-11.26-6.45 7.97 9.74z"/>
+      </svg>
+      Get it on Google Play
+    </a>
+    <p class="hero-sub">Free · Android · No account needed</p>
+  </section>
+
+  <!-- Screenshots -->
+  <section class="screenshots" id="screenshots">
+    <h2 class="section-title">See it in action</h2>
+    <p class="section-sub">Tap any screenshot to enlarge</p>
+    <div class="screenshot-grid">
+      <img src="screenshots/01-home-screen.png"    alt="Home screen"      onclick="openLightbox(this)" />
+      <img src="screenshots/03-gameplay.png"       alt="Gameplay"         onclick="openLightbox(this)" />
+      <img src="screenshots/02-game-in-progress.png" alt="How to Play"    onclick="openLightbox(this)" />
+      <img src="screenshots/04-game-over.png"      alt="Game over screen" onclick="openLightbox(this)" />
+    </div>
+  </section>
+
+  <!-- Features -->
+  <section class="features" id="features">
+    <div class="features-inner">
+      <h2 class="section-title">Why you'll love it</h2>
+      <p class="section-sub">Simple rules, deep strategy</p>
+      <div class="feature-grid">
+        <div class="feature-card">
+          <span class="feature-icon">🔢</span>
+          <h3>Merge Numbers</h3>
+          <p>Tiles with the same number in the same column merge and double — 2+2=4, 4+4=8, and so on.</p>
+        </div>
+        <div class="feature-card">
+          <span class="feature-icon">⛓️</span>
+          <h3>Chain Reactions</h3>
+          <p>After a vertical merge the new tile checks its neighbours. Trigger a cascade for massive scores!</p>
+        </div>
+        <div class="feature-card">
+          <span class="feature-icon">💣</span>
+          <h3>Bomb Power-Up</h3>
+          <p>Blow up the entire bottom row when the board gets tight. Use it wisely.</p>
+        </div>
+        <div class="feature-card">
+          <span class="feature-icon">⭐</span>
+          <h3>Wild Power-Up</h3>
+          <p>Transform the falling tile to match the value of the tile beneath it for an instant merge.</p>
+        </div>
+        <div class="feature-card">
+          <span class="feature-icon">📈</span>
+          <h3>Progressive Difficulty</h3>
+          <p>The game speeds up as you level up. Push your reflexes and planning to the limit.</p>
+        </div>
+        <div class="feature-card">
+          <span class="feature-icon">🌍</span>
+          <h3>5 Languages</h3>
+          <p>Play in English, Spanish, French, Italian, or German — the game feels native everywhere.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- How to play -->
+  <section class="howto" id="how-to-play">
+    <h2 class="section-title">How to Play</h2>
+    <p class="section-sub">Learn in under a minute</p>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-text">
+          <h4>Tiles fall from the top</h4>
+          <p>A new numbered tile spawns at the top-centre every turn.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-text">
+          <h4>Swipe to move &amp; drop</h4>
+          <p>Swipe left or right to steer the tile. Swipe down to drop it instantly.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-text">
+          <h4>Match to merge</h4>
+          <p>Two tiles with the same number in the same column merge into one with double the value.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">4</div>
+        <div class="step-text">
+          <h4>Survive &amp; score</h4>
+          <p>The game ends when a new tile can't spawn because the column is already full. Keep merging to stay alive!</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="cta">
+    <h2>Ready to drop?</h2>
+    <p>Free to download. No ads between rounds. Just pure puzzle action.</p>
+    <a class="btn-play"
+       href="https://play.google.com/store/apps/details?id=com.forexsignals10pips.numberdrop"
+       target="_blank"
+       rel="noopener noreferrer">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="black" xmlns="http://www.w3.org/2000/svg">
+        <path d="M3.18 23.76c.3.17.64.24.98.21l11.25-11.25-3.06-3.06L3.18 23.76z"/>
+        <path d="M21.54 10.28l-2.88-1.65-3.25 3.25 3.25 3.25 2.9-1.66c.83-.47.83-1.72-.02-2.19z"/>
+        <path d="M2.2.24C1.83.44 1.58.84 1.58 1.34v21.32c0 .5.25.9.62 1.1l.14.07 11.95-11.95v-.18L2.34.17 2.2.24z"/>
+        <path d="M12.35 12.88l3.29-3.29-11.26-6.45 7.97 9.74z"/>
+      </svg>
+      Get it on Google Play
+    </a>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <div>© 2026 NumberDrop. All rights reserved.</div>
+    <div>
+      <a href="privacy-policy.html">Privacy Policy</a>
+      &nbsp;·&nbsp;
+      <a href="https://play.google.com/store/apps/details?id=com.forexsignals10pips.numberdrop"
+         target="_blank" rel="noopener noreferrer">Google Play</a>
+    </div>
+  </footer>
+
+  <!-- Lightbox -->
+  <div class="lightbox" id="lightbox" onclick="closeLightbox()">
+    <button class="lightbox-close" aria-label="Close">&times;</button>
+    <img id="lightbox-img" src="" alt="" />
+  </div>
+
+  <script>
+    function openLightbox(img) {
+      const lb = document.getElementById('lightbox');
+      document.getElementById('lightbox-img').src = img.src;
+      document.getElementById('lightbox-img').alt = img.alt;
+      lb.classList.add('open');
+    }
+    function closeLightbox() {
+      document.getElementById('lightbox').classList.remove('open');
+    }
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') closeLightbox();
+    });
+  </script>
+</body>
+</html>
